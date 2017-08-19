@@ -1,0 +1,43 @@
+.detailwrap{
+	width:500px;
+}
+
+.detailwrap h1{
+	font-size:40px;
+	text-align:center;
+}
+
+.detailwrap p{
+	font-size:20px;
+	line-height:20px;
+}
+
+.close{
+	float:right;
+}
+
+.cart {
+	width:500px;
+	
+}
+.cart th{
+	font-size:30px;
+	font-weight:bold;
+	line-height:30px;
+	background:#BDBDBD;
+	color:#ffffff;
+	text-align:center;
+	border-bottom:1px solid #bbb;
+	}
+
+.cartcenter{
+	text-align:center;
+}
+.cartright{
+	text-align:right;
+}
+.cart td{
+	border-bottom:1px solid #bbb;
+	font-size:20px;
+	line-height:30px;
+}

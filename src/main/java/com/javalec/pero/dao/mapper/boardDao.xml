@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    
+<mapper namespace="com.javalec.pero.dao.boardDao">
+	<select id="getListboardCount" resultType="int">
+    	select count(*) from board
+    </select>
+     <select id="listboard" resultType="com.javalec.pero.dto.boardDto">
+        SELECT  
+            board_num,
+            board_id,
+            board_subject,
+            board_content,
+            board_re_ref,
+            board_re_lev,
+            board_re_seq,
+            board_readcount,
+            board_date,
+            board_parent
+        FROM board 
+        ORDER BY board_re_ref desc,board_re_seq desc limit #{param1},#{param2}
+    </select>
+       <select id="maxnum" resultType="int">
+        SELECT IFNULL(MAX(board_num)+1, 1) num
+        FROM board
+    </select>
+    <update id="boardreadcount">
+    	update board
+    	set board_readcount = board_readcount+1
+    	where board_num = #{param1}
+    </update>
+    <insert id="boardinsert">
+    	insert into board
+    	values(#{board_num},#{board_id},#{board_subject},#{board_content},#{board_num},0,9999,0,sysdate(),0)
+    </insert>
+    <select id="detailboard" resultType="com.javalec.pero.dto.boardDto">
+    	   SELECT  
+            board_num,
+            board_id,
+            board_subject,
+            board_content,
+            board_re_ref,
+            board_re_lev,
+            board_re_seq,
+            board_readcount,
+            board_date,
+            board_parent
+        FROM board 
+        where board_num = #{param1}
+    </select>
+    <update id="boardmodify">
+    	update board
+    	set board_subject = #{board_subject},
+    	    board_content = #{board_content}
+    	where board_num = #{board_num}
+     	
+    </update>
+    <delete id="boarddelete">
+    	delete 
+    	from board
+    	where board_num = #{param1}
+    </delete>
+    	<select id="getListqaboardCount" resultType="int">
+    	select count(*) from qaboard
+    </select>
+     <select id="listqaboard" resultType="com.javalec.pero.dto.boardDto">
+        SELECT  
+            board_num,
+            board_id,
+            board_subject,
+            board_content,
+            board_re_ref,
+            board_re_lev,
+            board_re_seq,
+            board_readcount,
+            board_date,
+            board_parent
+        FROM qaboard 
+        ORDER BY board_re_ref desc,board_re_seq desc limit #{param1},#{param2}
+    </select>
+       <select id="qamaxnum" resultType="int">
+        SELECT IFNULL(MAX(board_num)+1, 1) num
+        FROM qaboard
+    </select>
+    <update id="qaboardreadcount">
+    	update qaboard
+    	set board_readcount = board_readcount+1
+    	where board_num = #{param1}
+    </update>
+    <insert id="qaboardinsert">
+    	insert into qaboard
+    	values(#{board_num},#{board_id},#{board_subject},#{board_content},#{board_num},0,9999,0,sysdate(),0)
+    </insert>
+    <select id="detailqaboard" resultType="com.javalec.pero.dto.boardDto">
+    	   SELECT  
+            board_num,
+            board_id,
+            board_subject,
+            board_content,
+            board_re_ref,
+            board_re_lev,
+            board_re_seq,
+            board_readcount,
+            board_date,
+            board_parent
+        FROM qaboard 
+        where board_num = #{param1}
+    </select>
+    <update id="qaboardmodify">
+    	update qaboard
+    	set board_subject = #{board_subject},
+    	    board_content = #{board_content}
+    	where board_num = #{board_num}
+     	
+    </update>
+    <delete id="qaboarddelete">
+    	delete 
+    	from qaboard
+    	where board_num = #{param1}
+    </delete>
+    <update id="updateqa">
+		update qaboard set board_re_seq=board_re_seq+1
+    	where board_re_ref = #{param1} and <![CDATA[board_re_seq < #{param2}]]>      
+    </update>
+    <insert id="insertreply">
+    	insert into qaboard
+    	values(#{board_num},#{board_id},#{board_subject},#{board_content},#{board_re_ref},#{board_re_lev},#{board_re_seq},
+    	0,sysdate(),#{board_parent})
+    </insert>
+    <select id="qatree" resultType="int">
+    	select hi.board_num 
+    	from( 
+    	select prior_idx(board_num) as board_num, @level as level
+    	from (
+    	select @start_with := #{param1},
+    	@idx := @start_with,
+    	@level := 0
+    	) vars,qaboard
+    	where @idx is not null
+    	) ho
+    	join qaboard hi
+    	on hi.board_num = ho.board_num
+    	
+    </select>
+
+</mapper>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.javalec.pero.dao.memberDao">
+	<select id="duplicateIdCheck" resultType="int">
+		SELECT count(*) FROM member WHERE user_id=#{param1}
+	</select>
+	<insert id="MemberInsert" >
+		insert into member(user_id,user_pass,user_name,user_email)
+		values(#{userId},#{userPw},#{userName},#{userEmail})
+	</insert>
+	<select id="Memberlogin" resultType="com.javalec.pero.dto.memberDto">
+		select user_id AS userId,user_pass AS userPw,user_name AS userName,user_email AS userEmail
+		from member where user_id=#{userId}
+	</select>
+	<select id="info" resultType="com.javalec.pero.dto.memberDto">
+		select user_id AS userId,user_pass AS userPw,user_name AS userName,user_email AS userEmail
+		from member where user_id=#{param1}
+	</select>
+	<update id="Memberupdate">
+		update member set user_pass=#{userPw},user_name=#{userName},user_email=#{userEmail} where user_id=#{userId}
+	</update>
+	<delete id="Memberdelete" >
+		delete from member where user_id=#{param1} and user_pass=#{param2}
+	</delete>
+	<delete id="membercart" >
+		delete from cart where user_id=#{param1} 
+	</delete>
+		<delete id="memberorders" >
+		delete from orders where user_id=#{param1}
+	</delete>
+		<delete id="memberorderlist" >
+		delete from orderlist where user_id=#{param1}
+	</delete>
+	<select id="Memberselect" resultType="int">
+		select count(*) from member where user_id=#{param1} and user_pass=#{param2}
+	</select>
+	
+</mapper>

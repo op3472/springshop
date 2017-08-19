@@ -1,0 +1,53 @@
+.produ{
+	margin:50px 50px 0px;
+}
+
+  ul.nav li{ 
+	     float: left;
+		 width: 100px;
+		 height: 30px;
+		 background-color:#4C4C4C;	
+		 position: relative;
+	}
+    ul.nav a{
+	     display: block;
+		 width: 100%;
+		 height: 100%;
+		 line-height: 30px;
+		 font-weight: bold;
+		 font-size:20px;
+		 color: #ffffff;
+		 text-decoration: none;
+		 text-align:center;
+		 }
+      
+      ul.navsub{
+	     position: absolute;
+	     z-index:99;
+		}
+   		
+      ul.nav:after{
+	     height: 0;
+		 visibility: hidden;
+		 content: ".";
+		 display: block;
+		 clear: both;
+		 }
+	      ul.nav{
+	     zoom: 1;
+		 }
+	.navsub li{
+		width: 100px;
+		 height: 30px;
+		 background-color: #ffffff;
+	}
+	.navsub li a{
+		 display: block;
+		 width: 100%;
+		 height: 100%;
+		 line-height: 30px;
+		 font-size:15px;
+		 color: #ffffff;
+		 text-decoration: none;
+		 text-align:center;
+	}

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:aop="http://www.springframework.org/schema/aop" 
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd 
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+	<!-- DispatcherServlet Context: defines this servlet's request-processing infrastructure -->
+	
+	<!-- Enables the Spring MVC @Controller programming model -->
+	<annotation-driven />
+
+	<!-- Handles HTTP GET requests for /resources/** by efficiently serving up static resources in the ${webappRoot}/resources directory -->
+	<resources mapping="/resources/**" location="/resources/" />
+	<resources mapping="/images/**" location="/WEB-INF/views/shopimages/"/>
+	<!-- Resolves views selected for rendering by @Controllers to .jsp resources in the /WEB-INF/views directory -->
+	<beans:bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<beans:property name="prefix" value="/WEB-INF/views/" />
+		<beans:property name="suffix" value=".jsp" />
+	</beans:bean>
+	
+	<context:component-scan base-package="com.javalec.pero" use-default-filters="false">
+		 <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller" />
+		   <context:include-filter type="annotation" expression="org.springframework.stereotype.Service"/>
+ 		 <context:include-filter type="annotation" expression="org.springframework.stereotype.Repository"/>
+	</context:component-scan>
+
+	
+	<beans:bean name="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource" >
+		<beans:property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<beans:property name="url" value="jdbc:mysql://localhost:3306/spring" />
+		<beans:property name="username" value="20122947" />
+		<beans:property name="password" value="1234" />
+	</beans:bean>
+	<beans:bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<beans:property name="dataSource" ref="dataSource"></beans:property>
+		<beans:property name="mapperLocations" value="classpath:com/javalec/pero/dao/mapper/*.xml"></beans:property>
+	</beans:bean>
+	
+	<beans:bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+	<beans:property name="dataSource" ref="dataSource"></beans:property>
+	</beans:bean>
+	<aop:config proxy-target-class="true"> 
+		<aop:pointcut id="serviceOperation" expression="execution(* com.javalec.pero.service.*.*(..))" /> 
+		<aop:advisor id="transactionAdvisor" pointcut-ref="serviceOperation" advice-ref="txAdvice"/> 
+	</aop:config> 
+	<tx:advice id="txAdvice" transaction-manager="transactionManager"> 
+	<tx:attributes>
+	 <tx:method name="ordernextsequence" rollback-for="Exception"/>
+	 <tx:method name="orderlist" rollback-for="Exception"/>
+	 <tx:method name="memberdelete" rollback-for="Exception"/>
+	 <tx:method name="deliinsert" rollback-for="Exception"/>
+	 <tx:method name="qaboardreply" rollback-for="Exception"/>
+	 <tx:method name="qaboarddelete" rollback-for="Exception"/>
+	</tx:attributes>
+	</tx:advice>
+
+	<beans:bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+    	<beans:property name="maxUploadSize" value="2000000" />
+	</beans:bean>
+	
+
+	<beans:bean id="memberDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<beans:property name="sqlSessionFactory" ref="sqlSessionFactory"></beans:property>
+		<beans:property name="mapperInterface" value="com/javalec/pero/dao/memberDao"></beans:property>
+	</beans:bean>
+	
+	<beans:bean id="productDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<beans:property name="sqlSessionFactory" ref="sqlSessionFactory"></beans:property>
+		<beans:property name="mapperInterface" value="com/javalec/pero/dao/productDao"></beans:property>
+	</beans:bean>
+	
+	<beans:bean id="cartDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<beans:property name="sqlSessionFactory" ref="sqlSessionFactory"></beans:property>
+		<beans:property name="mapperInterface" value="com/javalec/pero/dao/cartDao"></beans:property>
+	</beans:bean>
+	<beans:bean id="boardDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<beans:property name="sqlSessionFactory" ref="sqlSessionFactory"></beans:property>
+		<beans:property name="mapperInterface" value="com/javalec/pero/dao/boardDao"></beans:property>
+	</beans:bean>
+	
+	<beans:bean id="adminInterceptor" class="com.javalec.interceptor.AdminInterceptor"/>
+<interceptors>
+<!-- 관리자 세션체크 매핑-->
+    <interceptor>
+        <mapping path="/admin/home.do"/>
+		<mapping path="/admin/product.do"/>
+		<mapping path="/admin/write.do"/>
+		<mapping path="/admin/insert.do"/>
+		<mapping path="/admin/update.do"/>
+		<mapping path="/admin/delete.do"/>
+		<mapping path="/admin/detail.do"/>
+		<mapping path="/admin/delivery.do"/>
+        <beans:ref bean="adminInterceptor"/>
+    </interceptor>
+</interceptors>
+</beans:beans>
+	

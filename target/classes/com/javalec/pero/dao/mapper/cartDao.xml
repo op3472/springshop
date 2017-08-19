@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    
+<mapper namespace="com.javalec.pero.dao.cartDao">
+    <!-- 01. 상품 전체 목록 -->
+     <insert id="insert">
+        INSERT INTO cart(
+           user_id, product_id, amount
+        ) VALUES (
+             #{userId}, #{productId}, #{amount}
+        )
+    </insert>
+      <select id="countCart" resultType="int">
+        SELECT COUNT(*)
+        FROM cart
+        WHERE user_id= #{param2} 
+        AND product_id = #{param1}
+    </select>
+      <update id="updateCart">
+        UPDATE cart 
+        SET amount = amount + #{amount} 
+        WHERE user_id= #{userId} 
+        AND product_id = #{productId}
+    </update>
+    <select id="listCart" resultType="com.javalec.pero.dto.cartDto">
+           SELECT
+            c.cart_id AS cartId, 
+            c.user_id AS userId,
+            p.product_id As productId,
+            m.user_name AS userName, 
+            p.product_name AS productName, 
+            c.amount, 
+            p.product_price AS productPrice, 
+            (product_price * amount) money
+        FROM
+            member m, product p, cart c
+        WHERE m.user_id = c.user_id
+            AND p.product_id = c.product_id
+            AND c.user_id = #{userId}
+        ORDER BY
+            c.cart_id
+    </select>
+    
+     <select id="sumMoney" resultType="int">
+        SELECT IFNULL(SUM(product_price * amount), 0) money
+        FROM cart c, product p
+        WHERE c.product_id = p.product_id AND c.user_id = #{userId}
+    </select>
+      <select id="sumMoney2" resultType="int">
+        SELECT IFNULL(SUM(order_money), 0) money
+        FROM orders
+        WHERE order_num = #{param1}
+    </select>
+    <delete id="delete">
+        DELETE FROM cart 
+        WHERE cart_id = #{cartId}
+    </delete>
+    <update id="modifyCart">
+        UPDATE cart    
+        SET amount = #{amount} 
+        WHERE user_id= #{userId} 
+        AND product_id = #{productId}
+    </update>
+   	<update id="updatesequence">
+   		update sequence 
+   		set seq = seq+1
+   		where seq_num =1
+   	</update> 
+   	<select id="selectsequence" resultType="int">
+   		select seq from sequence where seq_num=1
+   	</select>
+   	<insert id="order">
+   		insert into orders
+   		values(#{cartId},#{userId},#{amount},#{productName},#{money})
+   	</insert>
+   	<delete id="empty">
+   		delete from cart
+   		where user_id=#{param1}
+   	</delete>
+   	<insert id="orderlist">
+   		insert into orderlist
+   		values(#{param1},#{param2},sysdate(),#{param3},#{param4},#{param5},1)
+   	</insert>
+
+   	<select id="getListCount" resultType="int">
+    	select count(*) from orderlist
+    	where user_id = #{param1}
+    </select>
+       <select id="list" resultType="com.javalec.pero.dto.orderDto">
+        SELECT  
+            order_num AS num,
+            user_id AS user_id,
+            order_date AS date,
+            order_money AS money,
+            address AS address,
+            tele AS tele
+        FROM orderlist
+        where user_id=#{param1}
+        ORDER BY order_num desc limit #{param2},#{param3}
+    </select>
+    <select id="detailorder" resultType="com.javalec.pero.dto.orderDto">
+    	select
+    		order_num AS num,
+            user_id AS user_id,
+            order_date AS date,
+            order_money AS money,
+            address AS address,
+            tele AS tele,
+            order_state AS state
+        FROM orderlist
+        where order_num=#{param1}
+    </select>
+        <select id="detail" resultType="com.javalec.pero.dto.cartDto">
+           SELECT
+            user_id as userId,
+            order_amount as amount,
+            order_name as productName,
+            order_money as money
+        FROM
+           orders
+        WHERE 
+        	order_num=#{param1}
+    </select>
+    <select id="delivery" resultType="com.javalec.pero.dto.deliveryDto">
+    	select 
+			order_num AS num,
+			order_name AS name,
+			order_address AS address    	
+    	from 
+    	delivery
+    	where
+    		order_num=#{param1}
+    </select>
+</mapper>

@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    
+<mapper namespace="com.javalec.pero.dao.productDao">
+    <!-- 01. 상품 전체 목록 -->
+    <select id="listproduct" resultType="com.javalec.pero.dto.productDto">
+        SELECT  
+            product_id AS productId,
+            product_name AS productName,
+            product_price AS productPrice,
+            product_desc AS productDesc,
+            product_url AS productUrl
+        FROM product 
+        ORDER BY product_id desc limit #{param1},#{param2}
+    </select>
+     <select id="listProductnum" resultType="com.javalec.pero.dto.productDto">
+        SELECT  
+            product_id AS productId,
+            product_name AS productName,
+            product_price AS productPrice,
+            product_desc AS productDesc,
+            product_url AS productUrl
+        FROM product 
+        where product_num=#{param1}
+        ORDER BY product_name limit #{param2},#{param3}
+    </select>
+    
+      <select id="listbannernum" resultType="com.javalec.pero.dto.bannerDto">
+        SELECT  
+           	banner_num,
+           	banner_desc,
+           	banner_url,
+           	product_id
+        FROM banner
+        ORDER BY banner_num desc limit #{param1},#{param2}
+    </select>
+          <select id="listbanner" resultType="com.javalec.pero.dto.bannerDto">
+        SELECT  
+           	banner_num,
+           	banner_desc,
+           	banner_url,
+           	product_id
+        FROM banner
+        ORDER BY banner_num desc 
+    </select>
+    <select id="getbannerCount" resultType="int">
+    	select count(*) from banner
+    </select>
+	<select id="detailProduct" resultType="com.javalec.pero.dto.productDto">
+        SELECT
+            product_id AS productId, 
+            product_name AS productName, 
+            product_price AS productPrice, 
+            product_desc AS productDesc, 
+            product_url AS productUrl
+        FROM product 
+        WHERE product_id = #{productId}
+    </select>
+		<select id="getListCount" resultType="int">
+    	select count(*) from product
+    	where product_num = #{param1}
+    </select>
+       <insert id="insertProduct">
+        INSERT INTO product (product_num,product_name,product_price
+        ,product_desc,product_url) 
+        VALUES (
+        	#{productNum}	
+            , #{productName}
+            , #{productPrice}
+            , #{productDesc}
+            , #{productUrl}
+        )
+    </insert>
+        <insert id="bannerinsert">
+        INSERT INTO banner (banner_desc,banner_url
+        ,product_id) 
+        VALUES (
+        	#{banner_desc}	
+            , #{banner_url}
+            , #{product_id}
+        )
+    </insert>
+      <update id="updateProduct">
+        UPDATE product
+        SET product_name = #{productName}
+            , product_price = #{productPrice}
+            , product_desc = #{productDesc}
+            , product_url = #{productUrl}
+        WHERE
+            product_id = #{productId}
+    </update>
+    <delete id="deleteProduct">
+        DELETE FROM product
+        WHERE product_id = #{productId}
+    </delete>
+	   <delete id="deleteCart">
+        DELETE FROM cart
+        WHERE product_id = #{productId}
+    </delete>
+	
+    <!-- 06. 삭제를 위한 상품 이미지 파일이름 select -->
+    <select id="fileInfo" resultType="String">
+        SELECT     product_url AS productUrl
+        FROM product
+        WHERE product_id = #{productId}
+    </select>
+    	<select id="getListCount2" resultType="int">
+    	select count(*) from orderlist
+    </select>
+       <select id="list2" resultType="com.javalec.pero.dto.orderDto">
+        SELECT  
+            order_num AS num,
+            user_id AS user_id,
+            order_date AS date,
+            order_money AS money,
+            address AS address,
+            tele AS tele,
+            order_state AS state
+        FROM orderlist
+        ORDER BY order_num desc limit #{param1},#{param2}
+    </select>
+    <update id="updateorderlist">
+    	update orderlist
+    	set order_state = 2
+    	where 
+    		order_num = #{param1}
+    </update>
+    <insert id="deliinsert">
+    	insert into delivery
+    	values(#{num},#{name},#{address})
+    </insert>
+    <update id="complete">
+    	update orderlist
+    	set order_state = 3
+    	where
+    		order_num = #{param1}
+    </update>
+    	<select id="detailbanner" resultType="com.javalec.pero.dto.bannerDto">
+        SELECT
+        	banner_num,
+        	banner_desc,
+        	banner_url,
+        	product_id
+        FROM banner 
+        WHERE banner_num = #{param1}
+    </select>
+       <update id="updatebanner">
+        UPDATE banner
+        SET banner_desc = #{banner_desc}
+            , banner_url = #{banner_url}
+            , product_id = #{product_id}
+        WHERE
+            banner_num = #{banner_num}
+    </update>
+        <select id="bannerfileInfo" resultType="String">
+        SELECT banner_url 
+        FROM banner
+        WHERE banner_num = #{param1}
+    </select>
+      <delete id="deletebanner">
+        DELETE FROM banner
+        WHERE banner_num = #{param1}
+    </delete>
+</mapper>
