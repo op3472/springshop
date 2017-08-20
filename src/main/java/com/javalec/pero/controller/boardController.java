@@ -11,33 +11,28 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.javalec.pero.dto.boardDto;
 import com.javalec.pero.service.boardservice;
+import com.javalec.pero.util.Pageing;
 
 @Controller
 public class boardController {
 	 @Autowired
 	  private boardservice service;
+	 private Pageing pageing;
+	 private final int rowsize=15;
 	 @RequestMapping("/boardlist.do")
 	 public ModelAndView list(@RequestParam int page,ModelAndView mav,HttpSession session){ 
 		 String id= (String)session.getAttribute("id");
-		 int rowsize=15;   
-		 int limit=10; 
-	        int startrow=(page-1)*rowsize+1;
-	        int endrow=startrow+rowsize-1;
-		 int listcount = service.getListboardCount();
-		 int maxpage=(int)Math.ceil(listcount/(double)rowsize); //0.95를 더해서 올림 처리. 
-         //현재 페이지에 보여줄 시작 페이지 수(1, 11, 21 등...) 
-         int startpage = ((page-1)/limit*limit)+1;
-         //현재 페이지에 보여줄 마지막 페이지 수.(10, 20, 30 등...) 
-         int endpage = ((page-1)/limit*limit)+limit; 
-         if (endpage>maxpage) endpage=maxpage; 
-
+		 Pageing pageing =new Pageing(page,service.getListboardCount(),rowsize);
+	    int startrow=(page-1)*rowsize+1;
+	    int endrow=startrow+rowsize-1;
+	
 		 mav.setViewName("/board/list"); 
 		 mav.addObject("id",id);
-		 mav.addObject("listcount",listcount);
+		 mav.addObject("listcount",pageing.getListcount());
 		 mav.addObject("page",page);
-		 mav.addObject("maxapage",maxpage);
-		 mav.addObject("startpage", startpage);
-		 mav.addObject("endpage",endpage);
+		 mav.addObject("maxapage",pageing.getMaxpage());
+		 mav.addObject("startpage",pageing.getStartpage());
+		 mav.addObject("endpage",pageing.getEndpage());
 		 mav.addObject("list",service.listboard(startrow-1,endrow-startrow+1));
 		 return mav;
 	}	
@@ -86,26 +81,17 @@ public class boardController {
 	 @RequestMapping("/qaboardlist.do")
 	 public ModelAndView qalist(@RequestParam int page,ModelAndView mav,HttpSession session){ 
 		 String id= (String)session.getAttribute("id");
-		 int rowsize=15;   
-		 int limit=10; 
+		 Pageing pageing =new Pageing(page,service.getListqaboardCount(),rowsize);
 	     int startrow=(page-1)*rowsize+1;
-	        int endrow=startrow+rowsize-1;
-		 int listcount = service.getListqaboardCount();
-		 int maxpage=(int)Math.ceil(listcount/(double)rowsize); //0.95를 더해서 올림 처리. 
-      //현재 페이지에 보여줄 시작 페이지 수(1, 11, 21 등...) 
-      int startpage = ((page-1)/limit*limit)+1;
-      //현재 페이지에 보여줄 마지막 페이지 수.(10, 20, 30 등...) 
-      int endpage = ((page-1)/limit*limit)+limit; 
-      if (endpage>maxpage) endpage=maxpage; 
-
-
-		 mav.setViewName("/board/qalist"); 
-		 mav.addObject("id",id);
-		 mav.addObject("listcount",listcount);
-		 mav.addObject("page",page);
-		 mav.addObject("maxapage",maxpage);
-		 mav.addObject("startpage", startpage);
-		 mav.addObject("endpage",endpage);
+	     int endrow=startrow+rowsize-1;
+	       
+		mav.setViewName("/board/list"); 
+		mav.addObject("id",id);
+		mav.addObject("listcount",pageing.getListcount());
+		mav.addObject("page",page);
+		mav.addObject("maxapage",pageing.getMaxpage());
+		mav.addObject("startpage",pageing.getStartpage());
+		mav.addObject("endpage",pageing.getEndpage());
 		 mav.addObject("list",service.listqaboard(startrow-1,endrow-startrow+1));
 		 return mav;
 	}	

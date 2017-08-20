@@ -14,7 +14,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.javalec.pero.dto.cartDto;
+import com.javalec.pero.dto.feeDto;
 import com.javalec.pero.service.cartservice;
+import com.javalec.pero.util.Pageing;
 
 
 
@@ -24,7 +26,8 @@ public class cartController {
 	
 	  @Autowired
 	  private cartservice service;
-	  
+
+		private Pageing pageing;
 	   @RequestMapping("/insert.do")
 	    public String insert(@ModelAttribute cartDto vo, HttpSession session){
 	        String userId = (String) session.getAttribute("id");
@@ -45,15 +48,14 @@ public class cartController {
 	        String userId = (String) session.getAttribute("id"); // session에 저장된 userId
 	        Map<String, Object> map = new HashMap<String, Object>();
 	        List<cartDto> list = service.listCart(userId); // 장바구니 정보 
-	        int sumMoney = service.sumMoney(userId); // 장바구니 전체 금액 호출
-	        // 장바구니 전체 긍액에 따라 배송비 구분
-	        // 배송료(10만원이상 => 무료, 미만 => 2500원)
-	        int fee = sumMoney >= 100000 ? 0 : 2500;
+	        feeDto fee = new feeDto();
+	        fee.setSumMoney(service.sumMoney(userId));
+	     
 	        map.put("list", list);                // 장바구니 정보를 map에 저장
 	        map.put("count", list.size());        // 장바구니 상품의 유무
-	        map.put("sumMoney", sumMoney);        // 장바구니 전체 금액
-	        map.put("fee", fee);                 // 배송금액
-	        map.put("allSum", sumMoney+fee);    // 주문 상품 전체 금액
+	        map.put("sumMoney",fee.getSumMoney());        // 장바구니 전체 금액
+	        map.put("fee", fee.getFee());                 // 배송금액
+	        map.put("allSum", fee.getAllsum());    // 주문 상품 전체 금액
 	        mav.setViewName("cart/cartList");    // view(jsp)의 이름 저장
 	        mav.addObject("map", map);            // map 변수 저장
 	        return mav;
@@ -105,49 +107,44 @@ public class cartController {
 	    }
 	    @RequestMapping("order/list.do")
 	    public  ModelAndView list2(HttpSession session,ModelAndView mav,@RequestParam int page){
-	    	  mav.setViewName("cart/orderlist");
 	    	  String userId = (String) session.getAttribute("id");
-	    	  int limit=10; 
-		      int startrow=(page-1)*limit+1;
-		      int endrow=startrow+limit-1;
-		      int listcount = service.getListCount(userId);
-		      int maxpage=(int)((double)listcount/limit+0.95); //0.95를 더해서 올림 처리. 
-		         //현재 페이지에 보여줄 시작 페이지 수(1, 11, 21 등...) 
-		         int startpage = (((int) ((double)page / limit + 0.9)) - 1) * limit + 1; 
-		         //현재 페이지에 보여줄 마지막 페이지 수.(10, 20, 30 등...) 
-		         int endpage = maxpage; 
-		         if (endpage<startpage+limit-1) endpage=maxpage; 
-
+	    	  int rowsize=10;
+	    	  Pageing pageing =new Pageing(page,service.getListCount(userId),rowsize);
+		      int startrow=(page-1)*rowsize+1;
+		      int endrow=startrow+rowsize-1;
 				 mav.setViewName("cart/orderlist"); 
 				 mav.addObject("page",page);
-				 mav.addObject("maxapage",maxpage);
-				 mav.addObject("startpage", startpage);
-				 mav.addObject("endpage",endpage);
+				 mav.addObject("maxapage",pageing.getMaxpage());
+				 mav.addObject("startpage",pageing.getStartpage());
+				 mav.addObject("endpage",pageing.getEndpage());
 				 mav.addObject("list",service.list(userId,startrow-1,endrow-startrow+1));
 	    	  return mav;
 	    }
 	    @RequestMapping("/detail.do")
 	    public  ModelAndView detail(ModelAndView mav,@RequestParam int num){
-	    	int sumMoney = service.sumMoney2(num); // 장바구니 전체 금액 호출
-	        int fee = sumMoney >= 100000 ? 0 : 2500;
+	    	 // 장바구니 전체 금액 호출
+	    	 feeDto fee = new feeDto();
+		     fee.setSumMoney(service.sumMoney2(num));
+		         
 	    	mav.addObject("order",service.detailorder(num));
 	    	mav.addObject("list",service.detail(num));
 	    	mav.addObject("deli", service.delivery(num));
-	    	mav.addObject("fee", fee);
-	    	mav.addObject("allsum", sumMoney+fee);
-	    	mav.setViewName("cart/detail");
+	        mav.addObject("sumMoney",fee.getSumMoney());        // 장바구니 전체 금액
+		    mav.addObject("fee", fee.getFee());                 // 배송금액
+		    mav.addObject("allSum", fee.getAllsum()); 
+		    mav.setViewName("cart/detail");
 	    
 			return mav;
 	    }
 	    @RequestMapping("admin/detail.do")
 	    public  ModelAndView detail2(ModelAndView mav,@RequestParam int num){
-	    	int sumMoney = service.sumMoney2(num); // 장바구니 전체 금액 호출
-	        int fee = sumMoney >= 100000 ? 0 : 2500;
+	    	feeDto fee = new feeDto();
+		     fee.setSumMoney(service.sumMoney2(num));
 	    	mav.addObject("order",service.detailorder(num));
 	    	mav.addObject("list",service.detail(num));
 	    	mav.addObject("deli", service.delivery(num));
-	    	mav.addObject("fee", fee);
-	    	mav.addObject("allsum", sumMoney+fee);
+	        mav.addObject("fee", fee.getFee());                 // 배송금액
+			mav.addObject("allSum", fee.getAllsum()); 
 	    	mav.setViewName("admin/detail");
 	    
 			return mav;

@@ -14,12 +14,13 @@ import com.javalec.pero.dto.bannerDto;
 import com.javalec.pero.dto.deliveryDto;
 import com.javalec.pero.dto.productDto;
 import com.javalec.pero.service.productservice;
+import com.javalec.pero.util.Pageing;
 
 @Controller
 public class productController {
 	@Autowired
 	private productservice service;
-	
+
 	
 	 @RequestMapping("/product/detail/{productId}")
 	    public ModelAndView detail(@PathVariable("productId") int productId, ModelAndView mav){
@@ -30,23 +31,17 @@ public class productController {
 	 @RequestMapping("/list.do")
 	 public ModelAndView list(@RequestParam int num,@RequestParam int page,ModelAndView mav){ 
 		 int rowsize=16;   
-		 int limit=10; 
+		 Pageing pageing =new Pageing(page,service.getListCount(num),rowsize);
 	     int startrow=(page-1)*rowsize+1;
-	        int endrow=startrow+rowsize-1;
-			int listcount = service.getListCount(num);
-		 int maxpage=(int)Math.ceil(listcount/(double)rowsize); //0.95를 더해서 올림 처리. 
-      //현재 페이지에 보여줄 시작 페이지 수(1, 11, 21 등...) 
-      int startpage = ((page-1)/limit*limit)+1;
-      //현재 페이지에 보여줄 마지막 페이지 수.(10, 20, 30 등...) 
-      int endpage = ((page-1)/limit*limit)+limit; 
-      if (endpage>maxpage) endpage=maxpage; 
+	     int endrow=startrow+rowsize-1;
 
 		 mav.setViewName("/product/product"); 
+		 mav.addObject("num",page);
+		 mav.addObject("listcount",pageing.getListcount());
 		 mav.addObject("page",page);
-		 mav.addObject("num",num);
-		 mav.addObject("maxapage",maxpage);
-		 mav.addObject("startpage", startpage);
-		 mav.addObject("endpage",endpage);
+		 mav.addObject("maxapage",pageing.getMaxpage());
+		 mav.addObject("startpage",pageing.getStartpage());
+		 mav.addObject("endpage",pageing.getEndpage());
 		 mav.addObject("list",service.listProductnum(num,startrow-1,endrow-startrow+1));
 		 return mav;
 	}	
@@ -57,23 +52,17 @@ public class productController {
 	 @RequestMapping("/admin/list.do")
 	 public ModelAndView adminlist(@RequestParam int num,@RequestParam int page,ModelAndView mav){ 
 		 int rowsize=30;   
-		 int limit=10; 
+		 Pageing pageing =new Pageing(page,service.getListCount(num),rowsize);
 	     int startrow=(page-1)*rowsize+1;
-	        int endrow=startrow+rowsize-1;
-			int listcount = service.getListCount(num);
-		 int maxpage=(int)Math.ceil(listcount/(double)rowsize); //0.95를 더해서 올림 처리. 
-      //현재 페이지에 보여줄 시작 페이지 수(1, 11, 21 등...) 
-      int startpage = ((page-1)/limit*limit)+1;
-      //현재 페이지에 보여줄 마지막 페이지 수.(10, 20, 30 등...) 
-      int endpage = ((page-1)/limit*limit)+limit; 
-      if (endpage>maxpage) endpage=maxpage; 
-
+	     int endrow=startrow+rowsize-1;
+			
 		 mav.setViewName("/admin/productlist"); 
-		 mav.addObject("page",page);
 		 mav.addObject("num",num);
-		 mav.addObject("maxapage",maxpage);
-		 mav.addObject("startpage", startpage);
-		 mav.addObject("endpage",endpage);
+		 mav.addObject("listcount",pageing.getListcount());
+		 mav.addObject("page",page);
+		 mav.addObject("maxapage",pageing.getMaxpage());
+		 mav.addObject("startpage",pageing.getStartpage());
+		 mav.addObject("endpage",pageing.getEndpage());
 		 mav.addObject("list",service.listProductnum(num,startrow-1,endrow-startrow+1));
 		 return mav;
 	}	
@@ -177,22 +166,16 @@ public class productController {
 	    @RequestMapping("/admin/delivery.do")
 	    public ModelAndView delivery( ModelAndView mav,@RequestParam int page){
 	    	mav.setViewName("");
-	    	  int limit=10; 
-		      int startrow=(page-1)*limit+1;
-		      int endrow=startrow+limit-1;
-		      int listcount = service.getListCount2();
-		      int maxpage=(int)((double)listcount/limit+0.95); //0.95를 더해서 올림 처리. 
-		         //현재 페이지에 보여줄 시작 페이지 수(1, 11, 21 등...) 
-		         int startpage = (((int) ((double)page / limit + 0.9)) - 1) * limit + 1; 
-		         //현재 페이지에 보여줄 마지막 페이지 수.(10, 20, 30 등...) 
-		         int endpage = maxpage; 
-		         if (endpage<startpage+limit-1) endpage=maxpage; 
-
-				 mav.setViewName("admin/delivery"); 
+	    	int rowsize=10;
+	    	Pageing pageing =new Pageing(page,service.getListCount2(),rowsize);
+	    	int startrow=(page-1)*rowsize+1;
+		    int endrow=startrow+rowsize-1;
+		    	 mav.setViewName("admin/delivery"); 
+				 mav.addObject("listcount",pageing.getListcount());
 				 mav.addObject("page",page);
-				 mav.addObject("maxapage",maxpage);
-				 mav.addObject("startpage", startpage);
-				 mav.addObject("endpage",endpage);
+				 mav.addObject("maxapage",pageing.getMaxpage());
+				 mav.addObject("startpage",pageing.getStartpage());
+				 mav.addObject("endpage",pageing.getEndpage());
 				 mav.addObject("list",service.list2(startrow-1,endrow-startrow+1));
 	       
 	        return mav;
@@ -219,22 +202,18 @@ public class productController {
 	    }
 	    @RequestMapping("/admin/banner.do")
 	    public ModelAndView banner(ModelAndView mav,@RequestParam int page){
-	    	int limit2=12;
-			 int limit=10; 
-		        int startrow=(page-1)*limit2+1;
-		        int endrow=startrow+limit2-1;
-			 int listcount = service.getbannerCount();
-			 int maxpage=(int)((double)listcount/limit+0.95); //0.95를 더해서 올림 처리. 
-	         //현재 페이지에 보여줄 시작 페이지 수(1, 11, 21 등...) 
-	         int startpage = (((int) ((double)page / limit + 0.9)) - 1) * limit + 1; 
-	         //현재 페이지에 보여줄 마지막 페이지 수.(10, 20, 30 등...) 
-	         int endpage = maxpage; 
-	         if (endpage<startpage+limit-1) endpage=maxpage; 
+	    	int rowsize=12;
+	    	 Pageing pageing =new Pageing(page,service.getbannerCount(),rowsize);
+			 
+			 int startrow=(page-1)*rowsize+1;
+			 int endrow=startrow+rowsize-1;
+			
 
+	         mav.addObject("listcount",pageing.getListcount());
 			 mav.addObject("page",page);
-			 mav.addObject("maxapage",maxpage);
-			 mav.addObject("startpage", startpage);
-			 mav.addObject("endpage",endpage);
+			 mav.addObject("maxapage",pageing.getMaxpage());
+			 mav.addObject("startpage",pageing.getStartpage());
+			 mav.addObject("endpage",pageing.getEndpage());
 			 mav.addObject("list",service.listbannernum(startrow-1,endrow-startrow+1));
 			 mav.setViewName("admin/banner"); 
 			 

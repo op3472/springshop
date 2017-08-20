@@ -51,7 +51,7 @@
                 <tr>
                     <td class="cartright" colspan="5">
                         배송료 : ${fee}<br>
-                        전체 주문금액  :<fmt:formatNumber pattern="###,###,###" value="${allsum}"/>
+                        전체 주문금액  :<fmt:formatNumber pattern="###,###,###" value="${allSum}"/>
                  </td>
                </tr>
             </table>
